@@ -29,7 +29,7 @@ let lastHitTime = 0;
 let gameStarted = false;
 let isWinner = false;
 let isGameOver = false;
-let level = 3;
+let level = 1;
 
 // Preload Images
 function preload() {
