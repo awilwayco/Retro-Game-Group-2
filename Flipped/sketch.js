@@ -209,7 +209,6 @@ function draw() {
     nextLevel();
   }
 
-  console.log(bulletsAvailable);
   // Check if lost all bullets
   if (bulletsAvailable === 0) {
     isGameOver = true;
