@@ -1,4 +1,6 @@
 // Retro Game Project //
+// Original Version //
+// Space Invaders //
 
 // Changeable Game Values
 let lives = 3;
@@ -333,13 +335,31 @@ class Bullet {
     this.width = bulletSize;
     this.height = bulletSize;
     this.speed = bulletSpeed;
+    this.trail = []; // Store previous positions
   }
 
   update() {
+    // Add current position to trail
+    this.trail.push({ x: this.x, y: this.y });
+
+    // Limit the length of the trail
+    if (this.trail.length > 10) {
+      this.trail.shift(); // Remove oldest position
+    }
+
     this.y -= this.speed;
   }
 
   display() {
+    // Draw trail with fading effect
+    for (let i = 0; i < this.trail.length; i++) {
+      let alpha = map(i, 0, this.trail.length, 50, 255); // Fading effect
+      fill(0, 255, 255, alpha); // Cyan trail with decreasing opacity
+      noStroke();
+      ellipse(this.trail[i].x, this.trail[i].y, this.width / 1.5, this.height / 1.5);
+    }
+
+    // Draw the main bullet
     fill(0, 255, 255);
     ellipse(this.x, this.y, this.width, this.height);
   }
@@ -408,13 +428,31 @@ class EnemyBullet {
     this.width = enemyBulletSize;
     this.height = enemyBulletSize;
     this.speed = enemyBulletSpeed;
+    this.trail = []; // Store previous positions
   }
 
   update() {
+    // Add current position to trail
+    this.trail.push({ x: this.x, y: this.y });
+
+    // Limit the length of the trail
+    if (this.trail.length > 10) {
+      this.trail.shift(); // Remove oldest position
+    }
+
     this.y += this.speed;
   }
 
   display() {
+    // Draw trail with fading effect
+    for (let i = 0; i < this.trail.length; i++) {
+      let alpha = map(i, 0, this.trail.length, 50, 255); // Fading effect
+      fill(255, 0, 0, alpha); // Red trail with decreasing opacity
+      noStroke();
+      ellipse(this.trail[i].x, this.trail[i].y, this.width / 1.5, this.height / 1.5);
+    }
+
+    // Draw the main bullet
     fill(255, 0, 0);
     ellipse(this.x, this.y, this.width, this.height);
   }
@@ -474,8 +512,10 @@ function removeLife() {
 // Display Player Lives
 function displayLives() {
   for (let i = 0; i < lives; i++) {
+    tint(255, 50);
     image(ship.image, 20 + i * 30, height - 40, 25, 25);
   }
+  noTint();
 }
 
 // Create Enemies for each level

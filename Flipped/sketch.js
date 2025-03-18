@@ -1,13 +1,16 @@
 // Retro Game Project //
+// Flipped Version //
+// Space Breaker //
 
 // Changeable Game Values
-let lives = 3;
+let lives = 5;
+let bulletsTotal = 5;
 let bulletSize = 10;
 let bulletSpeed = 5;
 let bulletCooldown = 400;
-let bulletsAvailable = 3;
 let enemyBulletSpeed = 2;
 let enemyBulletSize = 5;
+let enemyMoveDownFrames = 10;
 
 // Unchangeable Game Values
 let width = 500;
@@ -20,10 +23,10 @@ let enemyBullets = [];
 let enemyDirection = 1;
 let enemyMoveCounter = 0;
 let enemyMovingDown = false;
-let enemyMoveDownFrames = 20;
 let enemyMoveDownProgress = 0;
 let invulnerable = false;
 let bulletsUsed = 0;
+let bulletsAvailable = bulletsTotal;
 let lastBulletTime = 0;
 let lastHitTime = 0;
 let gameStarted = false;
@@ -61,6 +64,7 @@ function draw() {
   // Title Screen
   if (!gameStarted) {
     showTitleScreen();
+    metalBorder();
     return;
   }
 
@@ -77,6 +81,8 @@ function draw() {
     text("You", width/2-75, height/2-10);
     text("Win!", width/2-85, height/2+60);
     noStroke();
+
+    metalBorder();
 
     // Green Highlighting on Hover
     let buttonX = 134.5, buttonY = 381, buttonWidth = 224.5, buttonHeight = 45.5;
@@ -106,6 +112,8 @@ function draw() {
     text("Over", width/2-95, height/2+50);
     noStroke();
 
+    metalBorder();
+
     // Green Highlighting on Hover
     let buttonX = 134.5, buttonY = 381, buttonWidth = 224.5, buttonHeight = 45.5;
     if (
@@ -131,6 +139,9 @@ function draw() {
   strokeWeight(4);  // Outline thickness
   text("Level " + level, 20, 30);  // Position at top-left
   noStroke();
+
+  // Draw a Metal Border
+  metalBorder();
 
   // Update and Display Player Ship
   ship.update();
@@ -168,7 +179,7 @@ function draw() {
   }  
 
   // Hold down Space Bar for Shooting
-  if (keyIsDown(32) && millis() - lastBulletTime > bulletCooldown && bulletsUsed < 3) {
+  if (keyIsDown(32) && millis() - lastBulletTime > bulletCooldown && bulletsUsed < bulletsTotal) {
     bulletsUsed++;
     bullets.push(new Bullet(ship.x + ship.width / 2, ship.y));
     lastBulletTime = millis();
@@ -204,6 +215,9 @@ function draw() {
   // Player Lives
   displayLives();
 
+  // Player Bullets
+  displayBullets()
+
   // Check for all enemies killed
   if (enemies.length === 0) {
     nextLevel();
@@ -235,7 +249,7 @@ function mousePressed() {
 // Handle Key Presses
 function keyPressed() {
   if (key === ' ') {
-    if (millis() - lastBulletTime > bulletCooldown && bulletsUsed < 3) {
+    if (millis() - lastBulletTime > bulletCooldown && bulletsUsed < bulletsTotal) {
       bulletsUsed++;
       bullets.push(new Bullet(ship.x + ship.width / 2, ship.y));
       lastBulletTime = millis();
@@ -274,6 +288,8 @@ function nextLevel() {
       return;
     }
     createEnemies(level);
+    bulletsUsed = 0;
+    bulletsAvailable = bulletsTotal;
     bullets = [];
     enemyBullets = [];
   }
@@ -291,7 +307,7 @@ function resetGame() {
   bulletSpeed = 5;
   bulletCooldown = 400;
   bulletsUsed = 0;
-  bulletsAvailable = 3;
+  bulletsAvailable = bulletsTotal;
   lastBulletTime = 0;
   lastHitTime = 0;
   enemyDirection = 1;
@@ -300,10 +316,22 @@ function resetGame() {
   enemyMoveDownFrames = 20;
   enemyMoveDownProgress = 0;
   invulnerable = false;
-  lives = 3;
+  lives = 5;
   level = 1;
   ship = new Ship(width / 2, height - 60);
   createEnemies(level);
+}
+
+// Add a Metal Border to Screen
+function metalBorder() {
+  // Draw Metal Border
+  fill(192, 192, 192);  // Silver/metallic color
+  stroke(128, 128, 128); // Darker metallic outline
+  strokeWeight(3);
+  rect(0, 0, 10, height); 
+  rect(width - 10, 0, 10, height);
+  rect(0, 0, width, 10);
+  noStroke();
 }
 
 // Ship class (Player)
@@ -311,6 +339,7 @@ class Ship {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.speed = 5;
     this.width = 50;
     this.height = 50;
     this.image = shipImg;
@@ -319,11 +348,11 @@ class Ship {
 
   update() {
     if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-      this.x -= 5;
+      this.x -= this.speed;
     } else if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-      this.x += 5;
+      this.x += this.speed;
     }
-    this.x = constrain(this.x, 0, width - this.width);
+    this.x = constrain(this.x, 12, width - this.width - 12);
   }
 
   display() {
@@ -333,9 +362,10 @@ class Ship {
   upgradeShip() {
     this.image = shipUpgradeImg;
     this.upgraded = true;
-    bulletSize = 5;
-    bulletSpeed = 10;
-    bulletCooldown = 300;
+    // Upgrades Added
+    bulletSize = 18;
+    bulletSpeed = 8;
+    this.speed = 7;
   }
 }
 
@@ -348,24 +378,42 @@ class Bullet {
     this.height = bulletSize;
     this.speedX = random(-2, 2);  // Slight random movement on release
     this.speedY = -bulletSpeed;   // Always move upwards at first
+    this.trail = []; // Store previous positions
   }
 
   update() {
+    // Add current position to trail
+    this.trail.push({ x: this.x, y: this.y });
+
+    // Limit the length of the trail
+    if (this.trail.length > 10) {
+      this.trail.shift(); // Remove oldest position
+    }
+
     this.x += this.speedX;
     this.y += this.speedY;
 
     // Bounce off walls
-    if (this.x < 0 || this.x > width) {
+    if (this.x < 16 || this.x > width - 16) {
       this.speedX *= -1;
     }
 
     // Bounce off top (Brick Breaker-style)
-    if (this.y < 0) {
+    if (this.y < 20) {
       this.speedY *= -1;
     }
   }
 
   display() {
+    // Draw trail with fading effect
+    for (let i = 0; i < this.trail.length; i++) {
+      let alpha = map(i, 0, this.trail.length, 50, 255); // Fading effect
+      fill(0, 255, 255, alpha); // Cyan trail with decreasing opacity
+      noStroke();
+      ellipse(this.trail[i].x, this.trail[i].y, this.width / 1.5, this.height / 1.5);
+    }
+
+    // Draw the main bullet
     fill(0, 255, 255);
     ellipse(this.x, this.y, this.width, this.height);
   }
@@ -449,13 +497,31 @@ class EnemyBullet {
     this.width = enemyBulletSize;
     this.height = enemyBulletSize;
     this.speed = enemyBulletSpeed;
+    this.trail = []; // Store previous positions
   }
 
   update() {
+    // Add current position to trail
+    this.trail.push({ x: this.x, y: this.y });
+
+    // Limit the length of the trail
+    if (this.trail.length > 10) {
+      this.trail.shift(); // Remove oldest position
+    }
+
     this.y += this.speed;
   }
 
   display() {
+    // Draw trail with fading effect
+    for (let i = 0; i < this.trail.length; i++) {
+      let alpha = map(i, 0, this.trail.length, 50, 255); // Fading effect
+      fill(255, 0, 0, alpha); // Red trail with decreasing opacity
+      noStroke();
+      ellipse(this.trail[i].x, this.trail[i].y, this.width / 1.5, this.height / 1.5);
+    }
+
+    // Draw the main bullet
     fill(255, 0, 0);
     ellipse(this.x, this.y, this.width, this.height);
   }
@@ -527,9 +593,10 @@ function removeLife() {
   setTimeout(() => {
     invulnerable = false;
     ship.upgraded = false;
+    // Upgrades Removed
     bulletSize = 10;
     bulletSpeed = 5;
-    bulletCooldown = 400;
+    ship.speed = 5;
     ship.image = shipImg; // Restore normal ship
   }, 1000); // 1 second of invulnerability
 
@@ -541,7 +608,17 @@ function removeLife() {
 // Display Player Lives
 function displayLives() {
   for (let i = 0; i < lives; i++) {
+    tint(255, 50);
     image(ship.image, 20 + i * 30, height - 40, 25, 25);
+  }
+  noTint();
+}
+
+// Display Player Bullets
+function displayBullets() {
+  for (let i = 0; i < bulletsAvailable; i++) {
+    fill(0, 255, 255, 70);
+    ellipse(32 + i * 30, height - 55, 10, 10);
   }
 }
 
@@ -587,14 +664,14 @@ function updateEnemyMovement() {
   }
 
   // Check if enemies are about to hit screen boundaries
-  if (leftmostX + moveAmount * enemyDirection < 0 || rightmostX + moveAmount * enemyDirection > width) {
+  if (leftmostX + moveAmount * enemyDirection < 12 || rightmostX + moveAmount * enemyDirection > width - 12) {
     enemyDirection *= -1; // Change direction
     enemyMovingDown = true; // Move down on bounce
   }
 
   // Handle downward movement
   if (enemyMovingDown) {
-    let moveStep = 20 / enemyMoveDownFrames;
+    let moveStep = enemyMoveDownFrames / enemyMoveDownFrames;
     for (let enemy of enemies) {
       enemy.move(0, moveStep);
       if (enemy.y + enemy.height >= height - ship.height) {
