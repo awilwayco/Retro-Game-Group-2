@@ -313,7 +313,7 @@ function resetGame() {
   enemyDirection = 1;
   enemyMoveCounter = 0;
   enemyMovingDown = false;
-  enemyMoveDownFrames = 20;
+  enemyMoveDownFrames = 10;
   enemyMoveDownProgress = 0;
   invulnerable = false;
   lives = 5;
