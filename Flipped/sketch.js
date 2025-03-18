@@ -297,26 +297,31 @@ function nextLevel() {
 
 // Reset all game state for a new game
 function resetGame() {
+
+  // Unchangeable Game Values
   bullets = [];
   enemies = [];
   enemyBullets = [];
   gameStarted = false;
   isWinner = false;
   isGameOver = false;
-  bulletSize = 10;
-  bulletSpeed = 5;
-  bulletCooldown = 400;
-  bulletsUsed = 0;
-  bulletsAvailable = bulletsTotal;
   lastBulletTime = 0;
   lastHitTime = 0;
   enemyDirection = 1;
   enemyMoveCounter = 0;
   enemyMovingDown = false;
-  enemyMoveDownFrames = 10;
   enemyMoveDownProgress = 0;
   invulnerable = false;
+
+  // Changeable Game Values
+  bulletSize = 10;
+  bulletSpeed = 5;
+  bulletCooldown = 400;
+  bulletsUsed = 0;
+  bulletsAvailable = bulletsTotal;
   lives = 5;
+
+  // Game Start Values
   level = 1;
   ship = new Ship(width / 2, height - 60);
   createEnemies(level);
