@@ -5,10 +5,12 @@
 // Changeable Game Values
 let lives = 3;
 let bulletSize = 10;
-let bulletSpeed = 5;
+let startingBulletSpeed = 5;
 let bulletCooldown = 400;
 let enemyBulletSpeed = 2;
 let enemyBulletSize = 5;
+let enemyBulletPercentage = 20; // %
+let enemyMoveDownFrames = 20;
 
 // Unchangeable Game Values
 let width = 500;
@@ -21,9 +23,9 @@ let enemyBullets = [];
 let enemyDirection = 1;
 let enemyMoveCounter = 0;
 let enemyMovingDown = false;
-let enemyMoveDownFrames = 20;
 let enemyMoveDownProgress = 0;
 let invulnerable = false;
+let bulletSpeed = startingBulletSpeed;
 let lastBulletTime = 0;
 let lastHitTime = 0;
 let gameStarted = false;
@@ -187,7 +189,7 @@ function draw() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     enemies[i].display();
     var randomValue = random();
-    if (randomValue < 0.002) {  // Chance of shooting
+    if (randomValue < enemyBulletPercentage / 10000) {  // Chance of shooting
       if (enemies[i].lastShootTime < 1000) {
         enemyBullets.push(new EnemyBullet(enemies[i].x + enemies[i].width / 2, enemies[i].y + enemies[i].height));
       }
@@ -278,7 +280,7 @@ function resetGame() {
   isWinner = false;
   isGameOver = false;
   bulletSize = 10;
-  bulletSpeed = 5;
+  bulletSpeed = startingBulletSpeed;
   bulletCooldown = 400;
   lastBulletTime = 0;
   lastHitTime = 0;

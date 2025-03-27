@@ -6,16 +6,17 @@
 let lives = 5;
 let bulletsTotal = 5;
 let bulletSize = 10;
-let bulletSpeed = 5;
+let startingBulletSpeed = 5;
 let bulletCooldown = 400;
 let enemyBulletSpeed = 2;
 let enemyBulletSize = 5;
-let enemyMoveDownFrames = 10;
+let enemyBulletPercentage = 20; // %
+let enemyMoveDownFrames = 15;
 
 // Unchangeable Game Values
 let width = 500;
 let height = 500;
-let backgroundImg, endScreenImg, enemyImg, enemy2Img, enemy3Img, goldenEnemyImg, shipImg, shipHitImg, titleImg;
+let backgroundImg, endScreenImg, enemyImg, enemy2Img, enemy3Img, goldenEnemyImg, shipImg, shipHitImg, shieldGif, titleImg;
 let ship;
 let bullets = [];
 let enemies = [];
@@ -27,6 +28,7 @@ let enemyMoveDownProgress = 0;
 let invulnerable = false;
 let bulletsUsed = 0;
 let bulletsAvailable = bulletsTotal;
+let bulletSpeed = startingBulletSpeed;
 let lastBulletTime = 0;
 let lastHitTime = 0;
 let gameStarted = false;
@@ -36,6 +38,7 @@ let level = 1;
 
 // Preload Images
 function preload() {
+  shieldGif = loadImage('assets/Shield.gif');
   backgroundImg = loadImage('assets/Background.png');
   endScreenImg = loadImage('assets/EndScreen.png');
   enemyImg = loadImage('assets/Enemy1.png');
@@ -202,7 +205,7 @@ function draw() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     enemies[i].display();
     var randomValue = random();
-    if (randomValue < 0.002) {  // Chance of shooting
+    if (randomValue < enemyBulletPercentage / 10000) {  // Chance of enemy shooting
       if (enemies[i].lastShootTime < 1000) {
         enemyBullets.push(new EnemyBullet(enemies[i].x + enemies[i].width / 2, enemies[i].y + enemies[i].height));
       }
@@ -315,7 +318,7 @@ function resetGame() {
 
   // Changeable Game Values
   bulletSize = 10;
-  bulletSpeed = 5;
+  bulletSpeed = startingBulletSpeed;
   bulletCooldown = 400;
   bulletsUsed = 0;
   bulletsAvailable = bulletsTotal;
@@ -348,6 +351,7 @@ class Ship {
     this.width = 50;
     this.height = 50;
     this.image = shipImg;
+    this.shield = shieldGif;
     this.upgraded = false;
   }
 
@@ -362,6 +366,10 @@ class Ship {
 
   display() {
     image(this.image, this.x, this.y, this.width, this.height);
+    // Shield
+    // tint(255, 100);
+    // image(this.shield, this.x-12, this.y-10, this.width*1.5, this.height*1.5);
+    // noTint();
   }
 
   upgradeShip() {
