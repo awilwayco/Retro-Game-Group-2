@@ -16,7 +16,7 @@ let enemyMoveDownFrames = 15;
 // Unchangeable Game Values
 let width = 500;
 let height = 500;
-let backgroundImg, endScreenImg, enemyImg, enemy2Img, enemy3Img, goldenEnemyImg, shipImg, shipHitImg, shieldGif, titleImg;
+let backgroundImg, endScreenImg, enemyImg, enemy2Img, enemy3Img, goldenEnemyImg, shipImg, shipHitImg, titleImg;
 let ship;
 let bullets = [];
 let enemies = [];
@@ -38,7 +38,6 @@ let level = 1;
 
 // Preload Images
 function preload() {
-  shieldGif = loadImage('assets/Shield.gif');
   backgroundImg = loadImage('assets/Background.png');
   endScreenImg = loadImage('assets/EndScreen.png');
   enemyImg = loadImage('assets/Enemy1.png');
@@ -351,7 +350,6 @@ class Ship {
     this.width = 50;
     this.height = 50;
     this.image = shipImg;
-    this.shield = shieldGif;
     this.upgraded = false;
   }
 
@@ -366,10 +364,6 @@ class Ship {
 
   display() {
     image(this.image, this.x, this.y, this.width, this.height);
-    // Shield
-    // tint(255, 100);
-    // image(this.shield, this.x-12, this.y-10, this.width*1.5, this.height*1.5);
-    // noTint();
   }
 
   upgradeShip() {
